@@ -4,7 +4,7 @@ const server = http.createServer((req, res) => {
     const url = req.url;
     console.log("URL::::", url);
     const method = req.method;
-    if (url === "/message") {
+    if (url === "/") {
         res.setHeader("Content-Type", "text/html");
         res.write("<html>");
         res.write("<head><title>INPUT MESSAGE</title><head>");
@@ -16,6 +16,7 @@ const server = http.createServer((req, res) => {
     }
     if (url === "/message" && method === "POST") {
         fs.writeFileSync("message.txt", "DUMMY");
+        ``;
         res.statusCode = 302;
         res.setHeader("location", "/");
         return res.end();
