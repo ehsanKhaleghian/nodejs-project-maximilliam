@@ -1,0 +1,23 @@
+{
+    "name": "nodejs-project-maximilliam",
+    "version": "1.0.0",
+    "description": "ehsan project",
+    "main": "app.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "start": "node app.js"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/ehsanKhaleghian/nodejs-project-maximilliam.git"
+    },
+    "author": "ehsan khaleghian",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/ehsanKhaleghian/nodejs-project-maximilliam/issues"
+    },
+    "homepage": "https://github.com/ehsanKhaleghian/nodejs-project-maximilliam#readme",
+    "devDependencies": {
+        "nodemon": "^2.0.12"
+    }
+}
