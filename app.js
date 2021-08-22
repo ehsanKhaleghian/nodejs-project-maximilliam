@@ -1,28 +1,23 @@
+const path = require("path");
+
 const express = require("express");
+const bodyParser = require("body-parser");
 
-const adminRoute=require("./router/admin");
-const shopRoute=require("./router/shop");
+const app = express();
 
-//پکیج باید نصب بشه تا بتونیم ریسپانس رو پارس کنیم
-//npm install --save body-parser
+const adminData = require("./routes/admin");
+const shopRoutes = require("./routes/shop");
 
-const app=express();
+app.use(bodyParser.urlencoded({ extended: false }));
 
-//برای استفاده از بادی پارسر
-const bodyParser=require("body-parser");
+//اضافه کردن فولدری که برای عموم دیدنش آزاد باشه
+app.use(express.static(path.join(__dirname, "./public")));
 
-app.use(bodyParser.urlencoded({extended:false}));
-//----------------------------------------------------------------------//
+app.use("/admin", adminData.routes);
+app.use(shopRoutes);
 
+app.use((req, res, next) => {
+    res.status(404).sendFile(path.join(__dirname, "views", "404.html"));
+});
 
-//اضافه شدن به اولشون بدون اینکه داخل خود فایل ادمین رو بنویسیم
-app.use("/admin",adminRoute);
-app.use(shopRoute)
-
-//برای هندل کردن 404 در آخرین خط کد پایین رو میزنیم
-//همچنینی به آن استیتوس میدیم
-app.use((req,res,next)=>{
-    res.status(404).send("<h1>Page Not Found</h1>")
-})
-
-app.listen(7777)
+app.listen(7777);
