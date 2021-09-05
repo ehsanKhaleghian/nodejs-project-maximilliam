@@ -2,3 +2,7 @@
     npm install --save ejs pug express-handlebars
     این سه تا پکیج رو انیستال میکنه
     pug express-handlebars ejs
+# ---------------------------------------------------------------------------- #
+
+# ------------------------------------ MVC ----------------------------------- #
+MVC is about separation of concern---> Models, Views, Controllers 
