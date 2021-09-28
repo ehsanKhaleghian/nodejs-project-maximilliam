@@ -6,3 +6,14 @@
 
 # ------------------------------------ MVC ----------------------------------- #
 MVC is about separation of concern---> Models, Views, Controllers 
+
+# ---------------------------------------------------------------------------- #
+if you have a dynamic route you should put it in the end of similar route because
+    the next route would be treated as dynamic rout:
+    Example::: router.get("/products/:productId")
+               router.get("/product/delete")----> This route will treated as dynamic route and doesn't work
+# ---------------------------------------------------------------------------- #
+We can pass an argument to "include" :
+    <%- include("../includes/harchi",{prod:product}) %>
+
+In a for loop the argumnet may not be available globaly so you should pass it through include.
