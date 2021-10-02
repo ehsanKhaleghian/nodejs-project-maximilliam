@@ -21,6 +21,7 @@ exports.postAddProduct = (req, res, next) => {
     product.save();
 
     res.redirect("/");
+    next();
 };
 
 exports.getProducts = (req, res, next) => {
