@@ -1,22 +1,72 @@
 const getDb = require("../util/database").getDb;
+const mongodb = require("mongodb");
 
 class Product {
-    constructor(title, price, description, imageUrl) {
+    constructor(title, imageUrl, description, price, id) {
         this.title = title;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
+        this._id = id ? new mongodb.ObjectId(id) : null;
     }
 
     save() {
         const db = getDb();
-        //**We can insertMany or insertOne. */
-        //**We can use this commend: insertOne({name:"jafar",age:32}) */
+        let dbOp;
+        if (this.id) {
+            //**For editing and updating one/many element/s inside database we use \/  */
+            //** updateOne()/updateMany() */
+            dbOp = db
+                .collection("products")
+                //**Determine the item by finding it by id and use "$set" to set the finded */
+                .updateOne({ _id: this._id }, { $set: this });
+        } else {
+            //**We can use this commend: insertOne({name:"jafar",age:32}) */
+            //**We can insertMany or insertOne. */
+            dbOp = db.collection("prodcuts").insertOne(this);
+        }
+        return dbOp
+            .then((result) => console.log("SAVED!!!"))
+            .catch((err) => console.log(err));
+    }
+
+    static fetchAll() {
+        const db = getDb();
+        //**We can use find() method only if there is a few items and if it was many of them it would be better  */
+        //**if we use some filters infort of it */
         return db
             .collection("products")
-            .insertOne(this)
-            .then((result) => console.log(result))
+            .find()
+            .toArray()
+            .then((products) => {
+                console.log(products);
+                return products;
+            })
             .catch((err) => console.log(err));
+    }
+
+    static findById(prodId) {
+        const db = getDb();
+        return (
+            db
+                .collection("products")
+                //**Mongo db save data on it's format and we use mongodb.ObjectId to resemble it to mongodb object */
+                .find({ _id: new mongodb.ObjectId(prodId) })
+                .next()
+                .then((product) => {
+                    return product;
+                })
+                .catch()
+        );
+    }
+
+    static deleteById(prodId) {
+        const db = getDb();
+        db.collection("products")
+            //**There is deleteOne and deleteMany command */
+            .deleteOne({ _id: new mongodb.ObjectId(prodId) })
+            .then((result) => console.log("Deleted"))
+            .catch((err) => console.log("Error in deleting:", err));
     }
 }
 
