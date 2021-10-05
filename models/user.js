@@ -4,9 +4,11 @@ const mongodb = require("mongodb");
 const ObjectId = mongodb.ObjectId;
 
 class User {
-    constructor(username, email) {
+    constructor(username, email, cart, id) {
         this.username = username;
         this.email = email;
+        this.cart = cart;
+        this._id = id;
     }
 
     save() {
@@ -18,14 +20,24 @@ class User {
             .catch((err) => console.log("Error in adding user:", err));
     }
 
-    static findUserById(id) {
+    addToCart(product) {
+        // const cartProduct=this.cart.items.findIndex(cp=>{
+        //     return cp._id===product._id
+        // });
+        const updatedCart = { items: [{ ...product, quantity: 1 }] };
         const db = getDb();
         return db
             .collection("users")
-            .findOne({ _id: new ObjectId(id) })
-            .next()
-            .then((result) => result)
-            .catch((err) => console.log("Error in finding user:", err));
+            .updateOne(
+                { _id: new ObjectId(this._id) },
+                { $set: { cart: updatedCart } }
+            );
+    }
+
+    static findUserById(id) {
+        const db = getDb();
+        //**It doesn't need .next()  because we used insertOne()*/
+        return db.collection("users").findOne({ _id: new ObjectId(id) });
     }
 }
 

@@ -2,12 +2,13 @@ const getDb = require("../util/database").getDb;
 const mongodb = require("mongodb");
 
 class Product {
-    constructor(title, imageUrl, description, price, id) {
+    constructor(title, imageUrl, description, price, id, userId) {
         this.title = title;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
         this._id = id ? new mongodb.ObjectId(id) : null;
+        this.userId = userId;
     }
 
     save() {
@@ -23,7 +24,7 @@ class Product {
         } else {
             //**We can use this commend: insertOne({name:"jafar",age:32}) */
             //**We can insertMany or insertOne. */
-            dbOp = db.collection("prodcuts").insertOne(this);
+            dbOp = db.collection("products").insertOne(this);
         }
         return dbOp
             .then((result) => console.log("SAVED!!!"))
