@@ -1,3 +1,36 @@
+const mongoose = require("mongoose");
+
+const Schema = mongoose.Schema;
+
+//**In Schema introduce the schem that we want and define the Types and require : */
+const prodcutSchema = new Schema({
+    title: {
+        type: String,
+        required: true,
+    },
+    price: {
+        type: Number,
+        required: true,
+    },
+    description: {
+        type: String,
+        required: true,
+    },
+    imageUrl: {
+        type: String,
+        required: true,
+    },
+});
+
+//**Mongoose takes the product name and create a collection in the */
+//**    database based on it's name . In here we will have a collection */
+//**    and the name of which is "product"(All in lowercase) */
+
+//**In the model first parameter is the name of schema and */
+//**    the second one is it's variable name */
+module.exports = mongoose.model("Product", prodcutSchema);
+
+/* -------------------------------------------------------------------------- */
 // const mongodb = require('mongodb');
 // const getDb = require('../util/database').getDb;
 

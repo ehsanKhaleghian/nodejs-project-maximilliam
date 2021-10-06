@@ -17,3 +17,7 @@ We can pass an argument to "include" :
     <%- include("../includes/harchi",{prod:product}) %>
 
 In a for loop the argumnet may not be available globaly so you should pass it through include.
+
+# --------------------------------- Mongoose --------------------------------- #
+*To install:
+    npm install --save mongoose
