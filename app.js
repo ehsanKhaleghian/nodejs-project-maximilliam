@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const errorController = require("./controllers/error");
-// const User = require("./models/user");
+const User = require("./models/user");
 
 const app = express();
 
@@ -19,14 +19,16 @@ const shopRoutes = require("./routes/shop");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
 
-// app.use((req, res, next) => {
-//     User.findById("5baa2528563f16379fc8a610")
-//         .then((user) => {
-//             req.user = new User(user.name, user.email, user.cart, user._id);
-//             next();
-//         })
-//         .catch((err) => console.log(err));
-// });
+app.use((req, res, next) => {
+    User.findById("615eb998f9f6d8535005d671")
+        .then((user) => {
+            //**The second user is the full mongoose model and we can call  */
+            //**    all of the mongoose methods on that */
+            req.user = user;
+            next();
+        })
+        .catch((err) => console.log(err));
+});
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
@@ -38,6 +40,22 @@ mongoose
         "mongodb+srv://ehsanScript:E55268199Yk@cluster0.ytldu.mongodb.net/shop?retryWrites=true&w=majority"
     )
     .then((result) => {
+        //**Usig below method to find if there is a user that it doesn't */
+        //**    create another one */
+        User.findOne().then((user) => {
+            if (!user) {
+                //**Creating a new user before listening to the app */
+                const user = new User({
+                    name: "Ehsan",
+                    email: "ehsan.khaleghian@gmail.com",
+                    cart: {
+                        items: [],
+                    },
+                });
+                user.save();
+            }
+        });
+
         app.listen(7777);
     })
     .catch((err) => {

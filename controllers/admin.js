@@ -13,14 +13,17 @@ exports.postAddProduct = (req, res, next) => {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
-    //**The left side like title:... refers to Schema item and right side refers to \/ */
-    //**items that we take here */
+    //**The left side like title:... refers to Schema item and right side refers to*/
+    //**    items that we take here */
     //**We should pass the Schema object here: */
     const product = new Product({
         title: title,
         price: price,
         description: description,
         imageUrl: imageUrl,
+        //**We can store entire mongoos object and that will choose only the id */
+        //**    of that object */
+        userId: req.user,
     });
     product
         //**Mongoose gives us the save() method and it acts like promise */
@@ -82,6 +85,12 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
     Product.find()
+        //**By using select() can select which field we want here and by using minus */
+        //**    that field would be excluded like -_id */
+        //.select("title price")
+        //**Here the data of user will populated and in the second field we can */
+        //**    choose which field we need in here the "name" field */
+        //.populate("userId")
         .then((products) => {
             res.render("admin/products", {
                 prods: products,
@@ -94,7 +103,8 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
-    Product.deleteById(prodId)
+    //**This is the method that provided by mongoos : findByIdAndRemove */
+    Product.findByIdAndRemove(prodId)
         .then(() => {
             console.log("DESTROYED PRODUCT");
             res.redirect("/admin/products");
