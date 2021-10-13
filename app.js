@@ -4,20 +4,34 @@ const express = require("express");
 const bodyParser = require("body-parser");
 //**Here Mongoose is imported */
 const mongoose = require("mongoose");
+//**For using session middleware we import it here to access it in every render */
+const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const app = express();
+const store = new MongoDBStore();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+    session({
+        //**Secret should be a long string */
+        secret: "j;skfsjflskfjslfs;fkasdjfsfd",
+        //**This means that session will not save on every response */
+        resave: false,
+        saveUninitialized: false,
+    })
+);
 
 app.use((req, res, next) => {
     User.findById("615eb998f9f6d8535005d671")
@@ -32,6 +46,7 @@ app.use((req, res, next) => {
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(errorController.get404);
 

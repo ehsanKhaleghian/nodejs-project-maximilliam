@@ -21,3 +21,11 @@ In a for loop the argumnet may not be available globaly so you should pass it th
 # --------------------------------- Mongoose --------------------------------- #
 *To install:
     npm install --save mongoose
+
+# --------------------------- Sessions and Cookies --------------------------- #
+*By using global variables it will share between all users.
+*Sessions store in server and cookies store in browser (Client side).
+*To using sessions we need a third party package :
+    npm install --save express-session
+*To store session in mongodb we need to install another package:
+    npm install --save connect-mongodb-session
