@@ -29,3 +29,5 @@ In a for loop the argumnet may not be available globaly so you should pass it th
     npm install --save express-session
 *To store session in mongodb we need to install another package:
     npm install --save connect-mongodb-session
+*For getting session data. it is passed to the req and we can gain it from req
+    like this example:  req.session.isLoggedIn

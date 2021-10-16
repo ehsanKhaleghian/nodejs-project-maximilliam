@@ -1,4 +1,7 @@
 const path = require("path");
+//**Remove this string from end of mongodb conncetion */
+const MONGODB_URI =
+    "mongodb+srv://ehsanScript:E55268199Yk@cluster0.ytldu.mongodb.net/shop?retryWrites=true&w=majority";
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -12,7 +15,12 @@ const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const app = express();
-const store = new MongoDBStore();
+
+//**Connecting session middleware to the database */
+const store = new MongoDBStore({
+    uri: MONGODB_URI,
+    collection: "sessoins",
+});
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -23,6 +31,12 @@ const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+//**Setting for session API */
+//**For every request:*/
+//**    1- The middleware will register */
+//**    2- The middleware will look for a session cookie */
+//**    3- If it finds one then will look for feeding session in the database */
+//**    3- Load data from the database */
 app.use(
     session({
         //**Secret should be a long string */
@@ -30,14 +44,17 @@ app.use(
         //**This means that session will not save on every response */
         resave: false,
         saveUninitialized: false,
+        store: store,
     })
 );
 
 app.use((req, res, next) => {
-    User.findById("615eb998f9f6d8535005d671")
+    if (!req.session.user) {
+        return next();
+    }
+    //**Find user by help of session and regiser it by mongoose to access its methods */
+    User.findById(req.session.user._id)
         .then((user) => {
-            //**The second user is the full mongoose model and we can call  */
-            //**    all of the mongoose methods on that */
             req.user = user;
             next();
         })
@@ -47,13 +64,10 @@ app.use((req, res, next) => {
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
 app.use(errorController.get404);
 
 mongoose
-    .connect(
-        "mongodb+srv://ehsanScript:E55268199Yk@cluster0.ytldu.mongodb.net/shop?retryWrites=true&w=majority"
-    )
+    .connect(MONGODB_URI)
     .then((result) => {
         //**Usig below method to find if there is a user that it doesn't */
         //**    create another one */
