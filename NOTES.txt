@@ -19,15 +19,30 @@ We can pass an argument to "include" :
 In a for loop the argumnet may not be available globaly so you should pass it through include.
 
 # --------------------------------- Mongoose --------------------------------- #
-*To install:
+**To install:
     npm install --save mongoose
 
 # --------------------------- Sessions and Cookies --------------------------- #
 *By using global variables it will share between all users.
 *Sessions store in server and cookies store in browser (Client side).
-*To using sessions we need a third party package :
+**To using sessions we need a third party package :
     npm install --save express-session
-*To store session in mongodb we need to install another package:
+**To store session in mongodb we need to install another package:
     npm install --save connect-mongodb-session
 *For getting session data. it is passed to the req and we can gain it from req
     like this example:  req.session.isLoggedIn
+
+# ------------------------------ Authentication ------------------------------ #
+*For encrypting passwords use this package:
+    npm install --save bcryptjs
+    We cannot decrypt passwords which is encrypted by this library
+
+* CSRF: Cross Site Request Forgery
+
+**installing a package for managing CSRF tokens:
+    npm install --save csurf
+
+*ّFor any request except (get) request, CSRF looks for token;
+
+**For feedback to user this package will save data in the session and then after using it will delete it:
+    npm install --save connect-flash

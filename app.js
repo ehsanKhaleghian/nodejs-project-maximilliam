@@ -10,17 +10,22 @@ const mongoose = require("mongoose");
 //**For using session middleware we import it here to access it in every render */
 const session = require("express-session");
 const MongoDBStore = require("connect-mongodb-session")(session);
+//**For using CSRF token*/
+const csrf = require("csurf");
+//**For feedbacking user */
+const flash = require("connect-flash");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
 
 const app = express();
-
 //**Connecting session middleware to the database */
 const store = new MongoDBStore({
     uri: MONGODB_URI,
     collection: "sessoins",
 });
+//**This package store token inside session */
+const csrfProtection = csrf();
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -47,6 +52,10 @@ app.use(
         store: store,
     })
 );
+//**The csrf package should use after session because it use session */
+app.use(csrfProtection);
+//**The connect-flash package should use after session because it use session */
+app.use(flash());
 
 app.use((req, res, next) => {
     if (!req.session.user) {
@@ -60,6 +69,13 @@ app.use((req, res, next) => {
         })
         .catch((err) => console.log(err));
 });
+//**For passing some items to every request like "isAuthenticat" or "csrfToken" */
+//**    we use this line befor routes */
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
@@ -69,22 +85,6 @@ app.use(errorController.get404);
 mongoose
     .connect(MONGODB_URI)
     .then((result) => {
-        //**Usig below method to find if there is a user that it doesn't */
-        //**    create another one */
-        User.findOne().then((user) => {
-            if (!user) {
-                //**Creating a new user before listening to the app */
-                const user = new User({
-                    name: "Ehsan",
-                    email: "ehsan.khaleghian@gmail.com",
-                    cart: {
-                        items: [],
-                    },
-                });
-                user.save();
-            }
-        });
-
         app.listen(7777);
     })
     .catch((err) => {
