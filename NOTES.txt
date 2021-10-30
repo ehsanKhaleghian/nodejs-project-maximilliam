@@ -46,3 +46,9 @@ In a for loop the argumnet may not be available globaly so you should pass it th
 
 **For feedback to user this package will save data in the session and then after using it will delete it:
     npm install --save connect-flash
+
+# ------------------------------- Email service ------------------------------ #
+*In this course we use sen grid form www.sendgrid.com
+
+**Install a package for sendign emails:
+    npm install --save nodemailer nodemailer-sendgrid-transport

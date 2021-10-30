@@ -1,6 +1,18 @@
 const User = require("../models/user");
 const bcrypt = require("bcryptjs");
+//**Mailing service */
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
 
+const transporter = nodemailer.createTransport(
+    sendgridTransport({
+        //**The api key can be given from sendgrid site-->setting-->apikey */
+        auth: {
+            api_key:
+                "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",
+        },
+    })
+);
 exports.getLogin = (req, res, next) => {
     //**Gaining information from cookie */
     //**One disadvantage of using cookie is that every user can change it in the  */
@@ -98,6 +110,13 @@ exports.postSignup = (req, res, next) => {
                 })
                 .then((result) => {
                     res.redirect("/login");
+                    //**Sending Email for user and we should send email in a blocking mode*/
+                    return transporter.sendMail({
+                        to: email,
+                        from: "shop@ehsan-shop.com",
+                        subject: "Signup succeeded",
+                        html: "<h1>You Successfully signed up!</h>",
+                    });
                 });
         })
         .catch((err) => console.log(err));
@@ -111,6 +130,19 @@ exports.getSignup = (req, res, next) => {
     res.render("auth/signup", {
         path: "/signup",
         pageTitle: "Signup",
+        //**This key: "error" is given from req.flash("error",.....) */
+        errorMessage: message,
+    });
+};
+
+exports.getReset = (req, res, next) => {
+    let message = req.flash("error");
+    if (message.lenght) {
+        message = message[0];
+    } else message = null;
+    res.render("auth/reset", {
+        path: "/reset",
+        pageTitle: "Reset Password",
         //**This key: "error" is given from req.flash("error",.....) */
         errorMessage: message,
     });
