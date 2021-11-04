@@ -31,6 +31,11 @@ exports.getLogin = (req, res, next) => {
         pageTitle: "Login",
         //**This key: "error" is given from req.flash("error",.....) */
         errorMessage: message,
+        oldInput: {
+            email: "",
+            password: "",
+        },
+        validationErrors: [],
     });
 };
 
@@ -49,11 +54,36 @@ exports.postLogin = (req, res, next) => {
     /* -------------------------------------------------------------------------- */
     const email = req.body.email;
     const password = req.body.password;
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render("auth/login", {
+            path: "/login",
+            pageTitle: "Login",
+            errorMessage: errors.array()[0].msg,
+            oldInput: {
+                email,
+                password,
+            },
+            validationErrors: errors.array(),
+        });
+    }
+
     User.findOne({ email: email })
         .then((user) => {
             if (!user) {
-                req.flash("error", "Invalid email or password.");
-                return res.redirect("/login");
+                //**By using validation the flash is not needed anymore */
+                // req.flash("error", "Invalid email or password.");
+                return res.status(422).render("auth/login", {
+                    path: "/login",
+                    pageTitle: "Login",
+                    errorMessage: errors.array()[0].msg,
+                    oldInput: {
+                        email,
+                        password,
+                    },
+                    validationErrors: [],
+                });
             }
             bcrypt
                 .compare(password, user.password)
@@ -72,8 +102,19 @@ exports.postLogin = (req, res, next) => {
                             res.redirect("/");
                         });
                     }
-                    req.flash("error", "Invalid email or password.");
-                    res.redirect("/login");
+                    //**By using validation the flash is not needed anymore */
+                    // req.flash("error", "Invalid email or password.");
+                    // res.redirect("/login");
+                    return res.status(422).render("auth/login", {
+                        path: "/login",
+                        pageTitle: "Login",
+                        errorMessage: errors.array()[0].msg,
+                        oldInput: {
+                            email,
+                            password,
+                        },
+                        validationErrors: [],
+                    });
                 })
                 .catch((err) => res.redirect("/login"));
         })
@@ -90,7 +131,6 @@ exports.postLogout = (req, res, next) => {
 exports.postSignup = (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
-    const confirmPassword = req.body.confirmPassword;
     //**To access errors in validator */
     const errors = validationResult(req);
     //**Is empty is a built in function in express-validator */
@@ -101,39 +141,36 @@ exports.postSignup = (req, res, next) => {
             pageTitle: "Signup",
             //**This key: "error" is given from req.flash("error",.....) */
             errorMessage: errors.array()[0].msg,
+            oldInput: {
+                email,
+                password,
+                confirmPassword: req.body.confirmPassword,
+            },
+            validationErrors: errors.array(),
         });
     }
-    User.findOne({ email: email })
-        .then((userDoc) => {
-            if (userDoc) {
-                req.flash(
-                    "error",
-                    "Email exists already, please pick a different one."
-                );
-                return res.redirect("/signup");
-            }
-            //**Using bcrypt package to encrypt password */
-            return bcrypt
-                .hash(password, 12)
-                .then((hashedPassword) => {
-                    const user = new User({
-                        email: email,
-                        password: hashedPassword,
-                        cart: { items: [] },
-                    });
-                    //**For saving in database */
-                    return user.save();
-                })
-                .then((result) => {
-                    res.redirect("/login");
-                    //**Sending Email for user and we should send email in a blocking mode*/
-                    return transporter.sendMail({
-                        to: email,
-                        from: "shop@ehsan-shop.com",
-                        subject: "Signup succeeded",
-                        html: "<h1>You Successfully signed up!</h>",
-                    });
-                });
+
+    //**Using bcrypt package to encrypt password */
+    bcrypt
+        .hash(password, 12)
+        .then((hashedPassword) => {
+            const user = new User({
+                email: email,
+                password: hashedPassword,
+                cart: { items: [] },
+            });
+            //**For saving in database */
+            return user.save();
+        })
+        .then((result) => {
+            res.redirect("/login");
+            //**Sending Email for user and we should send email in a blocking mode*/
+            return transporter.sendMail({
+                to: email,
+                from: "shop@ehsan-shop.com",
+                subject: "Signup succeeded",
+                html: "<h1>You Successfully signed up!</h>",
+            });
         })
         .catch((err) => console.log(err));
 };
@@ -148,6 +185,12 @@ exports.getSignup = (req, res, next) => {
         pageTitle: "Signup",
         //**This key: "error" is given from req.flash("error",.....) */
         errorMessage: message,
+        oldInput: {
+            email: "",
+            password: "",
+            confirmPassword: "",
+        },
+        validationErrors: [],
     });
 };
 
