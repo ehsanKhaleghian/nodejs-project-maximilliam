@@ -118,7 +118,13 @@ exports.postLogin = (req, res, next) => {
                 })
                 .catch((err) => res.redirect("/login"));
         })
-        .catch((err) => console.log(err));
+        .catch((err) => {
+            const error = new Error(err);
+            error.httpStatusCode = 500;
+            //**When error pass to the next the express will skip all other middleware and
+            //**    will go to the error middlware which we created.*/
+            return next(error);
+        });
 };
 
 exports.postLogout = (req, res, next) => {
@@ -217,7 +223,7 @@ exports.postReset = (req, res, next) => {
         User.findOne({ email: req.body.email })
             .then((user) => {
                 if (!user) {
-                    req.flash("error", "No accoutn with  that email found.");
+                    req.flash("error", "No account with  that email found.");
                     return res.redirect("/reset");
                 }
                 user.resetToken = token;

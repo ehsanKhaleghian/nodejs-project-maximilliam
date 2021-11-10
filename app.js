@@ -57,18 +57,6 @@ app.use(csrfProtection);
 //**The connect-flash package should use after session because it use session */
 app.use(flash());
 
-app.use((req, res, next) => {
-    if (!req.session.user) {
-        return next();
-    }
-    //**Find user by help of session and regiser it by mongoose to access its methods */
-    User.findById(req.session.user._id)
-        .then((user) => {
-            req.user = user;
-            next();
-        })
-        .catch((err) => console.log(err));
-});
 //**For passing some items to every request like "isAuthenticat" or "csrfToken" */
 //**    we use this line befor routes */
 app.use((req, res, next) => {
@@ -77,10 +65,47 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    //**If we throw error here out of then().catch() block express will go to the error handler */
+    //**    middleware. */
+    //throw new Error("DUMMY ERROR")
+    if (!req.session.user) {
+        return next();
+    }
+    //**Find user by help of session and regiser it by mongoose to access its methods */
+    User.findById(req.session.user._id)
+        .then((user) => {
+            if (!user) {
+                //**Additional check if the user couldn't be find to prevent our app not to crash */
+                return next();
+            }
+            req.user = user;
+            next();
+        })
+        //**This catch method only fires when we face technical errors, not when it didn't find a user */
+        .catch((err) => {
+            throw new Error(err);
+        });
+});
+
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+app.use("/500", errorController.get500);
 app.use(errorController.get404);
+
+//**This is occur when we pass an error object to the next() function like : next(error) */
+//**    and then express will skip all the above middlwares and execute this line and if */
+//**    we had more than one error middlwares it will be execute from top to bottom. */
+app.use((error, req, res, next) => {
+    //**We didn't redirect to prevent infinite loop becuase if throw an error in here */
+    //**    it will render again and by redirecting it will render app again. */
+    res.status(500).render("500", {
+        pageTitle: "Error!",
+        path: "/500",
+        isAuthenticated: req.session.isLoggedIn,
+    });
+});
 
 mongoose
     .connect(MONGODB_URI)

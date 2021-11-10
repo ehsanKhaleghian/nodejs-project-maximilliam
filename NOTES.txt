@@ -56,3 +56,21 @@ In a for loop the argumnet may not be available globaly so you should pass it th
 # -------------------------------- Validation -------------------------------- #
 **To validation we should use a third party package:
     npm install --save express-validator
+
+# ------------------------------ Error handling ------------------------------ #
+Status codes:
+    2xx Success;
+        200 Operation succeeded.
+        201 Success, resource created.
+    3xx Redirect;
+        301 Moved permanently.
+    4xx Client-side errors;
+        401 Not authenticated.
+        403 Not authorized.
+        404 Page not found.
+        422 Invalid input.
+    5xx Server-side error;
+        500 Server-side error
+
+Source: https://httpstatuses.com/
+# ---------------------------------------------------------------------------- #
