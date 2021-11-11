@@ -1,5 +1,5 @@
 const Product = require("../models/product");
-const { validationResult } = require("express-validator/check");
+const { validationResult } = require("express-validator");
 
 exports.getAddProduct = (req, res, next) => {
     if (!req.session.isLoggedIn) {
@@ -11,7 +11,7 @@ exports.getAddProduct = (req, res, next) => {
         editing: false,
         hasError: false,
         errorMessage: null,
-        validationError: [],
+        validationErrors: [],
     });
 };
 
@@ -38,7 +38,7 @@ exports.postAddProduct = (req, res, next) => {
                 description,
             },
             errorMessage: errors.array()[0].msg,
-            validationError: errors.array(),
+            validationErrors: errors.array(),
         });
     }
     //**The left side like title:... refers to Schema item and right side refers to*/
@@ -108,7 +108,7 @@ exports.getEditProduct = (req, res, next) => {
                 product: product,
                 hasError: false,
                 errorMessage: null,
-                validationError: [],
+                validationErrors: [],
             });
         })
         .catch((err) => {
@@ -142,7 +142,7 @@ exports.postEditProduct = (req, res, next) => {
                 _id: prodId,
             },
             errorMessage: errors.array()[0].msg,
-            validationError: errors.array(),
+            validationErrors: errors.array(),
         });
     }
 

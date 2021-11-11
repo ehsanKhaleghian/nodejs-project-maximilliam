@@ -1,7 +1,7 @@
 const express = require("express");
 //**The validator package-we took check function out of it */
 //**body means you should check for a specific field in the request body */
-const { check, body } = require("express-validator/check");
+const { check, body } = require("express-validator");
 const User = require("../models/user");
 
 const authController = require("../controllers/auth");
@@ -21,7 +21,7 @@ router.post(
             //**This is for sanitizing email(Cleaning it and make all words to lowercase,remove white spaces) */
             //**The email will be stored in the database in the sanatize style */
             .normalizeEmail(),
-        body("email", "Password has to be vaild.")
+        body("password", "Password has to be vaild.")
             .isLength({ min: 5 })
             .isAlphanumeric()
             //**To removing white space from password */

@@ -114,7 +114,7 @@ exports.postOrder = (req, res, next) => {
             return req.user.clearCart();
         })
         .then(() => res.redirect("/orders"))
-        .catch((err) => console.log(err));
+        .catch((err) => console.log("Error in the post CARD::::", err));
 };
 
 exports.getOrders = (req, res, next) => {

@@ -98,6 +98,7 @@ app.use(errorController.get404);
 //**    and then express will skip all the above middlwares and execute this line and if */
 //**    we had more than one error middlwares it will be execute from top to bottom. */
 app.use((error, req, res, next) => {
+    console.log("ERROR:::", error);
     //**We didn't redirect to prevent infinite loop becuase if throw an error in here */
     //**    it will render again and by redirecting it will render app again. */
     res.status(500).render("500", {
@@ -108,7 +109,7 @@ app.use((error, req, res, next) => {
 });
 
 mongoose
-    .connect(MONGODB_URI)
+    .connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
     .then((result) => {
         app.listen(7777);
     })
