@@ -16,11 +16,15 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = (req, res, next) => {
+    //**The imageUrl is commented because we want to upload a file instead of url */
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    // const imageUrl = req.body.imageUrl;
+    //**Change the other side of = to req.file for uploading a file */
+    const imageUrl = req.file;
     const price = req.body.price;
     const description = req.body.description;
     const errors = validationResult(req);
+    console.log("IMAGE URL:::", imageUrl);
 
     //**If we throw error it will go to the catch block and then will show the 500 page */
     // throw new Error("SOME DUMMY ERROR")

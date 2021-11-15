@@ -14,6 +14,8 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 //**For feedbacking user */
 const flash = require("connect-flash");
+//**For uploading and downloading files */
+const multer = require("multer");
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -26,6 +28,29 @@ const store = new MongoDBStore({
 });
 //**This package store token inside session */
 const csrfProtection = csrf();
+//**Diskstorage is a multer function that helps you to store your data in the disk*/
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images");
+    },
+    filename: (req, file, cb) => {
+        //**Here you can specify the file name */
+        //**We used file.filename to avoid files with same name */
+        cb(null, new Date().toISOString() + "_" + file.originalname);
+    },
+});
+//**To determine a filter for files like only jpeg is acceptable */
+const fileFilter = (req, file, cb) => {
+    //**null which is the first argument is for error */
+    if (
+        file.mimetype === "image/png" ||
+        file.mimetype === "image/jpg" ||
+        file.mimetype === "image/jpeg"
+    ) {
+        //**True in here means that it should be stored */
+        cb(null, true);
+    } else cb(null, false);
+};
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -35,6 +60,14 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
+//**We can define one file or multiple and then the name of input to be parse which is "image" here */
+//**{dest:image} is an option we passed to the multer then it will change the buffer file (which */
+//**    nodejs will create if you apload a file) to a file in a folder that it created by itself. */
+//**    the name of folder here is images. */
+//**We delete {dest:"image"}(<< app.use(multer({ dest: "images", storage }).single("image")); >>) to use our storage funcion  */
+app.use(
+    multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
+);
 app.use(express.static(path.join(__dirname, "public")));
 //**Setting for session API */
 //**For every request:*/
