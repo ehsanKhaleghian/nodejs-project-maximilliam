@@ -73,14 +73,4 @@ Status codes:
         500 Server-side error
 
 Source: https://httpstatuses.com/
-
-# -------------------- For uploading and downloading files ------------------- #
-**We need a new package to parse files:
-    npm install --save multer
-
-*The above package parses the incoming requests for files and text data.
-
-*We will change the parser in the form in views: edit-product.ejs and will add an
-    attribute: enctype="multipart/form-data" 
-
-*The package multer is a middlware and will be executed on every request.
+# ---------------------------------------------------------------------------- #
