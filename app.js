@@ -14,6 +14,8 @@ const MongoDBStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 //**For feedbacking user */
 const flash = require("connect-flash");
+//**For uploading and downloading file this package is needed*/
+const multer=require("multer")
 
 const errorController = require("./controllers/error");
 const User = require("./models/user");
@@ -27,6 +29,29 @@ const store = new MongoDBStore({
 //**This package store token inside session */
 const csrfProtection = csrf();
 
+const fileStorage=multer.diskStorage({
+    destination: (req,file,cb)=>{
+        //**،The first argument null is for telling multer that we have a problem and return /
+        //**    this error. and because we didn't have a problem we passed it null*/
+        cb(null,"images")
+    },
+    filename:(req,file,cb)=>{
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+        cb(null, file.fieldname + '-' + uniqueSuffix)
+    },
+});
+
+const fileFilter = (req,file,cb) => {
+    //**I don't know why it didn't work*/
+    // if(file.mimeType === "image/jpg" || file.mimeType === "image/png" || file.mimeType === "image/jpeg"){
+    //     cb(null, true)
+    // }else{
+    //     cb(null, false)
+    // }
+
+    cb(null, true)
+}
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
@@ -35,7 +60,14 @@ const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
 
 app.use(bodyParser.urlencoded({ extended: false }));
+//**The ("image") name in below comes form the name of input in the html file*/
+//**This property {dest: "images"} is for determining the destination folder and here is images*/
+app.use(multer({storage : fileStorage , fileFilter:fileFilter}).single("image"))
 app.use(express.static(path.join(__dirname, "public")));
+//**For images to serve we need this to serve staitcly*/
+//**In here express would assume that this images will serve as if they are in the root folder*/
+//**Here we tell express to pick the route from "/images" */
+app.use("/images",express.static(path.join(__dirname, "images")));
 //**Setting for session API */
 //**For every request:*/
 //**    1- The middleware will register */

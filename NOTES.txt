@@ -73,4 +73,14 @@ Status codes:
         500 Server-side error
 
 Source: https://httpstatuses.com/
-# ---------------------------------------------------------------------------- #
+
+#--------------------------------Uploading and downloading file----------------#
+**For uploading and downloading files this package is needed:
+    npm install --save multer
+
+*We should add this attribute : enctype="multipart/form-data" to the form to tell that
+    this form should not accept only texts but should accept binary data too.
+
+*Files is too big and too inefficient to store in the database. So we have to store their path.
+
+*The backslash will change a path to the absolute pass not appended to the current path

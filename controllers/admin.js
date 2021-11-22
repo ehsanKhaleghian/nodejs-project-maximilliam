@@ -1,7 +1,7 @@
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
 
-exports.getAddProduct = (req, res, next) => {
+exports.getAddProduct = (req, res) => {
     if (!req.session.isLoggedIn) {
         return res.redirect("/login");
     }
@@ -17,10 +17,27 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = (req, res, next) => {
     const title = req.body.title;
-    const imageUrl = req.body.imageUrl;
+    const image = req.file;
     const price = req.body.price;
     const description = req.body.description;
     const errors = validationResult(req);
+    if (!image) {
+        return res.status(422).render("admin/edit-product", {
+            pageTitle: "Add Product",
+            path: "/admin/add-product",
+            editing: false,
+            hasError: true,
+            product: {
+                title,
+                price,
+                description,
+            },
+            errorMessage: "Attached file is not an image.",
+            validationErrors: [],
+        });
+    }
+
+    const imageUrl = image.path;
 
     //**If we throw error it will go to the catch block and then will show the 500 page */
     // throw new Error("SOME DUMMY ERROR")
@@ -56,7 +73,7 @@ exports.postAddProduct = (req, res, next) => {
     product
         //**Mongoose gives us the save() method and it acts like promise */
         .save()
-        .then((result) => {
+        .then(() => {
             console.log("Created Product");
             res.redirect("/admin/products");
         })
@@ -85,7 +102,7 @@ exports.postAddProduct = (req, res, next) => {
             //**We can pass extra information through error. */
             error.httpStatusCode = 500;
             //**When error pass to the next the express will skip all other middleware and
-            //**    will go to the error middlware which we created.*/
+            //**    will go to the error middleware which we created.*/
             return next(error);
         });
 };
@@ -115,7 +132,7 @@ exports.getEditProduct = (req, res, next) => {
             const error = new Error(err);
             error.httpStatusCode = 500;
             //**When error pass to the next the express will skip all other middleware and
-            //**    will go to the error middlware which we created.*/
+            //**    will go to the error middleware which we created.*/
             return next(error);
         });
 };
@@ -124,7 +141,7 @@ exports.postEditProduct = (req, res, next) => {
     const prodId = req.body.productId;
     const updatedTitle = req.body.title;
     const updatedPrice = req.body.price;
-    const updatedImageUrl = req.body.imageUrl;
+    const image = req.file;
     const updatedDesc = req.body.description;
     const errors = validationResult(req);
 
@@ -154,10 +171,14 @@ exports.postEditProduct = (req, res, next) => {
             product.title = updatedTitle;
             product.price = updatedPrice;
             product.description = updatedDesc;
-            product.imageUrl = updatedImageUrl;
+            // product.imageUrl = updatedImageUrl;
+            //**Here we check if user add an image in the image file peacker then we will change the image.*/
+            if(image){
+                product.imageUrl=image.path;
+            }
             //**Inside product mongoose has save() method */
             //**By returning we create a chain of promises so we can use .then and .catch again */
-            return product.save().then((result) => {
+            return product.save().then(() => {
                 console.log("UPDATED PRODUCT!");
                 res.redirect("/admin/products");
             });
@@ -167,7 +188,7 @@ exports.postEditProduct = (req, res, next) => {
             const error = new Error(err);
             error.httpStatusCode = 500;
             //**When error pass to the next the express will skip all other middleware and
-            //**    will go to the error middlware which we created.*/
+            //**    will go to the error middleware which we created.*/
             return next(error);
         });
 };
@@ -192,7 +213,7 @@ exports.getProducts = (req, res, next) => {
             const error = new Error(err);
             error.httpStatusCode = 500;
             //**When error pass to the next the express will skip all other middleware and
-            //**    will go to the error middlware which we created.*/
+            //**    will go to the error middleware which we created.*/
             return next(error);
         });
 };
@@ -209,7 +230,7 @@ exports.postDeleteProduct = (req, res, next) => {
             const error = new Error(err);
             error.httpStatusCode = 500;
             //**When error pass to the next the express will skip all other middleware and
-            //**    will go to the error middlware which we created.*/
+            //**    will go to the error middleware which we created.*/
             return next(error);
         });
 };
