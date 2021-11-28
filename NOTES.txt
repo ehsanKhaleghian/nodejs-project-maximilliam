@@ -84,3 +84,6 @@ Source: https://httpstatuses.com/
 *Files is too big and too inefficient to store in the database. So we have to store their path.
 
 *The backslash will change a path to the absolute pass not appended to the current path
+
+**For generating PDF use a package named pdfKit:
+    npm install --save pdfkit

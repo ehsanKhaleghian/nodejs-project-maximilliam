@@ -1,5 +1,6 @@
 const Product = require("../models/product");
 const { validationResult } = require("express-validator");
+const fileHelper = require("../util/file")
 
 exports.getAddProduct = (req, res) => {
     if (!req.session.isLoggedIn) {
@@ -174,7 +175,10 @@ exports.postEditProduct = (req, res, next) => {
             // product.imageUrl = updatedImageUrl;
             //**Here we check if user add an image in the image file peacker then we will change the image.*/
             if(image){
+                //**For deleting the image file if exist*/
+                fileHelper.deleteFile(product.imageUrl);
                 product.imageUrl=image.path;
+
             }
             //**Inside product mongoose has save() method */
             //**By returning we create a chain of promises so we can use .then and .catch again */
@@ -220,8 +224,14 @@ exports.getProducts = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
     const prodId = req.body.productId;
+    Product.findById(prodId).then(product => {
+        if (!product) {
+            return next(new Error("Product not found"))
+        }
+        fileHelper.deleteFile(product.imageUrl);
+        Product.deleteOne({ _id: prodId, userId: req.user._id })
+    })
     //**This is the method that provided by mongoos : findByIdAndRemove */
-    Product.deleteOne({ _id: prodId, userId: req.user._id })
         .then(() => {
             console.log("DESTROYED PRODUCT");
             res.redirect("/admin/products");
